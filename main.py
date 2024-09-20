@@ -2,6 +2,7 @@
 Find Me Game
 """
 import arcade
+import arcade.gui
 
 import random
 
@@ -32,6 +33,10 @@ class MyGame(arcade.Window):
         # go into a list.
         self.items_list = None
 
+        # Creating a UI MANAGER to handle the UI 
+        self.uimanager = arcade.gui.UIManager() 
+        self.uimanager.enable() 
+
     def setup(self):
         """Set up the game here. Call this function to restart the game."""
 
@@ -45,7 +50,6 @@ class MyGame(arcade.Window):
         item.center_y = random.randint(0, SCREEN_HEIGHT)
         self.items_list.append(item)
 
-
     def on_draw(self):
         """Render the screen."""
 
@@ -56,11 +60,28 @@ class MyGame(arcade.Window):
         arcade.draw_lrwh_rectangle_textured(0, 0,
                                             SCREEN_WIDTH, SCREEN_HEIGHT,
                                             self.background)
-        
+
         # Draw our sprites
         self.items_list.draw()
-        
-        
+
+        # Drawing our ui manager 
+        self.uimanager.draw() 
+
+    def on_mouse_press(self, x, y, button, key_modifiers):
+        """ Called when the user presses a mouse button. """
+
+        # Get list of items we've clicked on
+        items = arcade.get_sprites_at_point((x, y), self.items_list)
+
+        # Have we clicked on a item? then win
+        if len(items) > 0:
+            self.uimanager.add(arcade.gui.UIMessageBox(width=200.0, height=100.0, message_text='You win!'))
+
+    def on_key_press(self, symbol: int, modifiers: int):
+        """ User presses key """
+        if symbol == arcade.key.R:
+            # Restart
+            self.setup()
 
 
 def main():
