@@ -1,0 +1,74 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "findme"
+version = "0.0.0"
+description = "Yet Another Game"
+license = "Apache-2.0"
+authors = [
+    "Ian Anikiev <yavanikiev@edu.hse.ru>",
+    "Kirill Balandin <kabalandin@edu.hse.ru>",
+    "Sergei Bogdanov <syubogdanov@edu.hse.ru>",
+]
+maintainers = [
+    "Ian Anikiev <yavanikiev@edu.hse.ru>",
+    "Kirill Balandin <kabalandin@edu.hse.ru>",
+    "Sergei Bogdanov <syubogdanov@edu.hse.ru>",
+]
+readme = "README.md"
+homepage = "https://github.com/YanikusGG/FindMe"
+repository = "https://github.com/YanikusGG/FindMe"
+documentation = "https://github.com/YanikusGG/FindMe/tree/main/docs/"
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+]
+
+[tool.poetry.dependencies]
+arcade = "~2.6"
+pillow = "~11.0"
+python = "~3.11"
+screeninfo = "~0.8"
+
+[tool.poetry.group.lint]
+optional = true
+
+[tool.poetry.group.lint.dependencies]
+mypy = "~1.10"
+ruff = "~0.3"
+
+[tool.poetry.scripts]
+findme = "findme.__main__:main"
+
+[tool.mypy]
+disallow_any_unimported = true
+disallow_incomplete_defs = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+disallow_untyped_defs = true
+explicit_package_bases = true
+no_implicit_optional = true
+strict_equality = true
+warn_unused_ignores = true
+python_version = "3.11"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D100", "D104"]
+
+[tool.ruff.lint.isort]
+lines-after-imports = 2
+lines-between-types = 1
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.pylint]
+max-args = 8
