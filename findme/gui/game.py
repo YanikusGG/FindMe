@@ -1,5 +1,6 @@
 from pathlib import Path
 from secrets import randbelow
+from datetime import datetime
 from typing import TYPE_CHECKING, Self
 
 from arcade import draw_lrwh_rectangle_textured
@@ -35,6 +36,7 @@ class FindMe(Window):
             width=screen_settings.width,
             height=screen_settings.height,
             title=game_settings.title,
+            resizable=True,
         )
 
         self._game_settings: GameSettings = game_settings
@@ -42,32 +44,34 @@ class FindMe(Window):
         self._screen_settings: ScreenSettings = screen_settings
 
         self._sprite: Texture
-        self._box: tuple[int, int, int, int] = ()
+        self._box: tuple[float, float, float, float] = None
 
         self.manager = UIManager(self)
         self.manager.enable()
 
-    def setup(self: Self) -> None:
+    def setup(self: Self, extra: any = None) -> None:
         """Перезагрузить игру."""
         self.clear()
 
         path_to_background = Randomizer.get_background()
         self.background = load_texture(path_to_background)
 
-        self._box = self._get_crop_box(path_to_background)
-        path_to_sprite = photoshop.crop(path_to_background, *self._box)
-
-        widget = UITextureButton(
-            texture=load_texture(path_to_sprite),
-            text=Message.FIND,
+        widget = UIMessageBox(
+            width=self._message_box_settings.width,
+            height=self._message_box_settings.height,
+            message_text=Message.START_BOX,
+            buttons=[Message.START],
+            callback=self.run_level,
         )
-
-        widget.on_click = lambda _: self.manager.remove(widget)
-        widget = widget.with_border()
-
-        widget.center_on_screen()
-
         self.manager.add(widget)
+        self.manager.draw()
+
+    def run_level(self: Self, extra: any = None) -> None:
+        self.manager.clear()
+        path_to_object = Randomizer.get_object()
+        self.object = load_texture(path_to_object)
+        self._box = self._get_crop_box(path_to_object)
+        self._level_start = datetime.now()
         self.manager.draw()
 
     def on_draw(self: Self) -> None:
@@ -77,40 +81,60 @@ class FindMe(Window):
         draw_lrwh_rectangle_textured(
             bottom_left_x=0,
             bottom_left_y=0,
-            width=self._screen_settings.width,
-            height=self._screen_settings.height,
+            width=self.width,
+            height=self.height,
             texture=self.background,
         )
+        
+        if self._box is not None:
+            x0, y0, x1, y1 = self._box
+            x0 = x0 * self.width
+            y0 = y0 * self.height
+            x1 = x1 * self.width
+            y1 = y1 * self.height
+            draw_lrwh_rectangle_textured(
+                bottom_left_x=x0,
+                bottom_left_y=y0,
+                width=x1-x0,
+                height=y1-y0,
+                texture=self.object,
+            )
 
         self.manager.draw()
 
     def on_mouse_press(self: Self, x: int, y: int, _button: int, _modifiers: int) -> None:
         """Триггер на нажатия мыши."""
+        if self._box is None:
+            return
         x0, y0, x1, y1 = self._box
-
-        # Для `arcade` ордината убывает сверху вниз
-        y = self._screen_settings.height - y
+        x0 = x0 * self.width
+        y0 = y0 * self.height
+        x1 = x1 * self.width
+        y1 = y1 * self.height
 
         if not ((x0 <= x <= x1) and (y0 <= y <= y1)):
             return
 
+        self._level_stop = datetime.now()
         widget = UIMessageBox(
             width=self._message_box_settings.width,
             height=self._message_box_settings.height,
-            message_text=Message.VICTORY,
+            message_text=Message.VICTORY + str((self._level_stop - self._level_start).total_seconds()),
             buttons=[Message.HOORAY],
+            callback=self.run_level,
         )
 
         self.manager.add(widget)
 
-    def _get_crop_box(self: Self, image: Path) -> tuple[int, int, int, int]:
+    def _get_crop_box(self: Self, image: Path) -> tuple[float, float, float, float]:
         """Получить параметры обрезки заднего фона."""
         width, height = photoshop.get_shape(image)
 
         if self._game_settings.mode == Mode.RANDOM:
-            x0, y0 = randbelow(width), randbelow(height)
-            dx, dy = randbelow(width - x0), randbelow(height - y0)
-            return (x0, y0, x0 + dx, y0 + dy)
+            
+            x0, y0 = randbelow(self.width - width), randbelow(self.height - height)
+            dx, dy = randbelow(25) + 25, randbelow(25) + 25
+            return (x0 / self.width, y0 / self.height, (x0 + dx) / self.width, (y0 + dy)/self.height)
 
         detail = "This code is unreachable"
         raise RuntimeError(detail)
