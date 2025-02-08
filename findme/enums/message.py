@@ -9,3 +9,6 @@ class Message(StrEnum):
 
     FIND = "Find this image"
     OK = "OK"
+
+    START_BOX = "Press start to begin playing"
+    START = "Start!"
