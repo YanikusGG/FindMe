@@ -68,6 +68,8 @@ class FindMe(Window):
 
     def run_level(self: Self, extra: any = None) -> None:
         self.manager.clear()
+        path_to_background = Randomizer.get_background()
+        self.background = load_texture(path_to_background)
         path_to_object = Randomizer.get_object()
         self.object = load_texture(path_to_object)
         self._box = self._get_crop_box(path_to_object)
@@ -119,7 +121,7 @@ class FindMe(Window):
         widget = UIMessageBox(
             width=self._message_box_settings.width,
             height=self._message_box_settings.height,
-            message_text=Message.VICTORY + str((self._level_stop - self._level_start).total_seconds()),
+            message_text=Message.VICTORY + "\n" + str(round((self._level_stop - self._level_start).total_seconds(), 2)) + " seconds!",
             buttons=[Message.HOORAY],
             callback=self.run_level,
         )
@@ -131,9 +133,10 @@ class FindMe(Window):
         width, height = photoshop.get_shape(image)
 
         if self._game_settings.mode == Mode.RANDOM:
-            
+            const = 15
+
             x0, y0 = randbelow(self.width - width), randbelow(self.height - height)
-            dx, dy = randbelow(25) + 25, randbelow(25) + 25
+            dx, dy = randbelow(const) + const, randbelow(const) + const
             return (x0 / self.width, y0 / self.height, (x0 + dx) / self.width, (y0 + dy)/self.height)
 
         detail = "This code is unreachable"

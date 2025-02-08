@@ -28,8 +28,8 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-arcade = "2.6"
-pillow = "~8.3"
+arcade = "~2.6"
+pillow = "~9.1"
 python = "~3.11"
 screeninfo = "~0.8"
 

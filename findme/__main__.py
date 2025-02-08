@@ -1,4 +1,8 @@
+from contextlib import suppress
+
 from findme.gui.runner import Runner
+
+from pyglet.image.atlas import AllocatorException
 
 
 def main() -> None:
@@ -8,4 +12,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    while True:
+        with suppress(Exception):
+            main()
